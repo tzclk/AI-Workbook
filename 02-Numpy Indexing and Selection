@@ -1,0 +1,166 @@
+ 
+
+NumPy Indexing and Selection
+In this lecture we will discuss how to select elements or groups of elements from an array.
+
+import numpy as np
+#Creating sample array
+arr = np.arange(0,11)
+#Show
+arr
+array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10])
+Bracket Indexing and Selection
+The simplest way to pick one or some elements of an array looks very similar to python lists:
+
+#Get a value at an index
+arr[8]
+8
+#Get values in a range
+arr[1:5]
+array([1, 2, 3, 4])
+#Get values in a range
+arr[0:5]
+array([0, 1, 2, 3, 4])
+
+
+Broadcasting
+Numpy arrays differ from a normal Python list because of their ability to broadcast:
+
+#Setting a value with index range (Broadcasting)
+arr[0:5]=100
+​
+#Show
+arr
+array([100, 100, 100, 100, 100,   5,   6,   7,   8,   9,  10])
+# Reset array, we'll see why I had to reset in  a moment
+arr = np.arange(0,11)
+​
+#Show
+arr
+array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10])
+#Important notes on Slices
+slice_of_arr = arr[0:6]
+​
+#Show slice
+slice_of_arr
+array([0, 1, 2, 3, 4, 5])
+#Change Slice
+slice_of_arr[:]=99
+​
+#Show Slice again
+slice_of_arr
+array([99, 99, 99, 99, 99, 99])
+Now note the changes also occur in our original array!
+
+arr
+array([99, 99, 99, 99, 99, 99,  6,  7,  8,  9, 10])
+Data is not copied, it's a view of the original array! This avoids memory problems!
+
+#To get a copy, need to be explicit
+arr_copy = arr.copy()
+​
+arr_copy
+array([99, 99, 99, 99, 99, 99,  6,  7,  8,  9, 10])
+Indexing a 2D array (matrices)
+The general format is arr_2d[row][col] or arr_2d[row,col]. I recommend usually using the comma notation for clarity.
+
+arr_2d = np.array(([5,10,15],[20,25,30],[35,40,45]))
+​
+#Show
+arr_2d
+array([[ 5, 10, 15],
+       [20, 25, 30],
+       [35, 40, 45]])
+#Indexing row
+arr_2d[1]
+​
+array([20, 25, 30])
+# Format is arr_2d[row][col] or arr_2d[row,col]
+​
+# Getting individual element value
+arr_2d[1][0]
+20
+# Getting individual element value
+arr_2d[1,0]
+20
+# 2D array slicing
+​
+#Shape (2,2) from top right corner
+arr_2d[:2,1:]
+array([[10, 15],
+       [25, 30]])
+#Shape bottom row
+arr_2d[2]
+array([35, 40, 45])
+#Shape bottom row
+arr_2d[2,:]
+array([35, 40, 45])
+
+
+
+Fancy Indexing
+Fancy indexing allows you to select entire rows or columns out of order,to show this, let's quickly build out a numpy array:
+
+#Set up matrix
+arr2d = np.zeros((10,10))
+#Length of array
+arr_length = arr2d.shape[1]
+#Set up array
+​
+for i in range(arr_length):
+    arr2d[i] = i
+    
+arr2d
+array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+       [ 1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.],
+       [ 2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.],
+       [ 3.,  3.,  3.,  3.,  3.,  3.,  3.,  3.,  3.,  3.],
+       [ 4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.],
+       [ 5.,  5.,  5.,  5.,  5.,  5.,  5.,  5.,  5.,  5.],
+       [ 6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.],
+       [ 7.,  7.,  7.,  7.,  7.,  7.,  7.,  7.,  7.,  7.],
+       [ 8.,  8.,  8.,  8.,  8.,  8.,  8.,  8.,  8.,  8.],
+       [ 9.,  9.,  9.,  9.,  9.,  9.,  9.,  9.,  9.,  9.]])
+       
+       
+Fancy indexing allows the following
+
+arr2d[[2,4,6,8]]
+array([[ 2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.],
+       [ 4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.],
+       [ 6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.],
+       [ 8.,  8.,  8.,  8.,  8.,  8.,  8.,  8.,  8.,  8.]])
+       
+       
+#Allows in any order
+arr2d[[6,4,2,7]]
+array([[ 6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.,  6.],
+       [ 4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.,  4.],
+       [ 2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.,  2.],
+       [ 7.,  7.,  7.,  7.,  7.,  7.,  7.,  7.,  7.,  7.]])
+       
+       
+More Indexing Help
+Indexing a 2d matrix can be a bit confusing at first, especially when you start to add in step size. Try google image searching NumPy indexing to fins useful images, like this one:
+
+
+
+Selection
+Let's briefly go over how to use brackets for selection based off of comparison operators.
+
+arr = np.arange(1,11)
+arr
+array([ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10])
+arr > 4
+array([False, False, False, False,  True,  True,  True,  True,  True,  True], dtype=bool)
+bool_arr = arr>4
+bool_arr
+array([False, False, False, False,  True,  True,  True,  True,  True,  True], dtype=bool)
+arr[bool_arr]
+array([ 5,  6,  7,  8,  9, 10])
+arr[arr>2]
+array([ 3,  4,  5,  6,  7,  8,  9, 10])
+x = 2
+arr[arr>x]
+array([ 3,  4,  5,  6,  7,  8,  9, 10])
+Great Job!
