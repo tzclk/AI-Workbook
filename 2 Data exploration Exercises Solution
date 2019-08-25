@@ -1,0 +1,175 @@
+ 
+
+import numpy as np
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+
+import pandas as pd
+import numpy as np
+​
+%matplotlib inline
+import matplotlib.pyplot as plt
+​
+import pandas as pd
+
+
+Exercise 1
+load the dataset: ../data/international-airline-passengers.csv
+inspect it using the .info() and .head() commands
+use the function pd.to_datetime() to change the column type of 'Month' to a datatime type
+set the index of df to be a datetime index using the column 'Month' and the df.set_index() method
+choose the appropriate plot and display the data
+choose appropriate scale
+label the axes
+
+
+
+
+# - load the dataset: ../data/international-airline-passengers.csv
+df = pd.read_csv('../data/international-airline-passengers.csv')
+# - inspect it using the .info() and .head() commands
+df.info()
+df.head()
+# - use the function to_datetime() to change the column type of 'Month' to a datatime type
+# - set the index of df to be a datetime index using the column 'Month' and tthe set_index() method
+​
+df['Month'] = pd.to_datetime(df['Month'])
+df = df.set_index('Month')
+df.head()
+# - choose the appropriate plot and display the data
+# - choose appropriate scale
+# - label the axes
+​
+df.plot()
+
+
+
+
+Exercise 2
+load the dataset: ../data/weight-height.csv
+inspect it
+plot it using a scatter plot with Weight as a function of Height
+plot the male and female populations with 2 different colors on a new scatter plot
+remember to label the axes
+
+
+# - load the dataset: ../data/weight-height.csv
+# - inspect it
+df = pd.read_csv('../data/weight-height.csv')
+df.head()
+df.info()
+df.describe()
+df['Gender'].value_counts()
+# - plot it using a scatter plot with Weight as a function of Height
+_ = df.plot(kind='scatter', x='Height', y='Weight')
+# - plot the male and female populations with 2 different colors on a new scatter plot
+# - remember to label the axes
+​
+# this can be done in several ways, showing 2 here:
+males = df[df['Gender'] == 'Male']
+females = df.query('Gender == "Female"')
+fig, ax = plt.subplots()
+​
+males.plot(kind='scatter', x='Height', y='Weight',
+           ax=ax, color='blue', alpha=0.3,
+           title='Male & Female Populations')
+​
+females.plot(kind='scatter', x='Height', y='Weight',
+             ax=ax, color='red', alpha=0.3)
+df['Gendercolor'] = df['Gender'].map({'Male': 'blue', 'Female': 'red'})
+df.head()
+df.plot(kind='scatter', 
+        x='Height',
+        y='Weight',
+        c=df['Gendercolor'],
+        alpha=0.3,
+        title='Male & Female Populations')
+fig, ax = plt.subplots()
+ax.plot(males['Height'], males['Weight'], 'ob', 
+        females['Height'], females['Weight'], 'or', alpha=0.3)
+plt.xlabel('Height')
+plt.ylabel('Weight')
+plt.title('Male & Female Populations')
+
+
+
+
+Exercise 3
+
+plot the histogram of the heights for males and for females on the same plot
+use alpha to control transparency in the plot comand
+plot a vertical line at the mean of each population using plt.axvline()
+males['Height'].plot(kind='hist',
+                     bins=50,
+                     range=(50, 80),
+                     alpha=0.3,
+                     color='blue')
+​
+females['Height'].plot(kind='hist',
+                       bins=50,
+                       range=(50, 80),
+                       alpha=0.3,
+                       color='red')
+​
+plt.title('Height distribution')
+plt.legend(["Males", "Females"])
+plt.xlabel("Heigth (in)")
+​
+​
+plt.axvline(males['Height'].mean(), color='blue', linewidth=2)
+plt.axvline(females['Height'].mean(), color='red', linewidth=2)
+​
+males['Height'].plot(kind='hist',
+                     bins=200,
+                     range=(50, 80),
+                     alpha=0.3,
+                     color='blue',
+                     cumulative=True,
+                     normed=True)
+​
+females['Height'].plot(kind='hist',
+                       bins=200,
+                       range=(50, 80),
+                       alpha=0.3,
+                       color='red',
+                       cumulative=True,
+                       normed=True)
+​
+plt.title('Height distribution')
+plt.legend(["Males", "Females"])
+plt.xlabel("Heigth (in)")
+​
+plt.axhline(0.8)
+plt.axhline(0.5)
+plt.axhline(0.2)
+
+
+
+
+Exercise 4
+
+plot the weights of the males and females using a box plot
+which one is easier to read?
+(remember to put in titles, axes and legends)
+
+dfpvt = df.pivot(columns = 'Gender', values = 'Weight')
+dfpvt.head()
+dfpvt.info()
+dfpvt.plot(kind='box')
+plt.title('Weight Box Plot')
+plt.ylabel("Weight (lbs)")
+
+
+
+
+Exercise 5
+
+load the dataset: ../data/titanic-train.csv
+learn about scattermatrix here: http://pandas.pydata.org/pandas-docs/stable/visualization.html
+display the data using a scattermatrix
+df = pd.read_csv('../data/titanic-train.csv')
+df.head()
+from pandas.plotting import scatter_matrix
+_ = scatter_matrix(df.drop('PassengerId', axis=1), figsize=(10, 10))
+​
