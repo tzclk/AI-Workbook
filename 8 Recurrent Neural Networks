@@ -1,0 +1,169 @@
+ 
+
+Recurrent Neural Networks
+
+
+import pandas as pd
+import numpy as np
+%matplotlib inline
+import matplotlib.pyplot as plt
+
+
+Time series forecasting
+
+df = pd.read_csv('../data/cansim-0800020-eng-6674700030567901031.csv',
+                 skiprows=6, skipfooter=9,
+                 engine='python')
+df.head()
+from pandas.tseries.offsets import MonthEnd
+df['Adjustments'] = pd.to_datetime(df['Adjustments']) + MonthEnd(1)
+df = df.set_index('Adjustments')
+df.head()
+df.plot()
+split_date = pd.Timestamp('01-01-2011')
+train = df.loc[:split_date, ['Unadjusted']]
+test = df.loc[split_date:, ['Unadjusted']]
+ax = train.plot()
+test.plot(ax=ax)
+plt.legend(['train', 'test'])
+
+from sklearn.preprocessing import MinMaxScaler
+​
+sc = MinMaxScaler()
+​
+train_sc = sc.fit_transform(train)
+test_sc = sc.transform(test)
+train_sc[:4]
+X_train = train_sc[:-1]
+y_train = train_sc[1:]
+​
+X_test = test_sc[:-1]
+y_test = test_sc[1:]
+
+
+Fully connected predictor
+from keras.models import Sequential
+from keras.layers import Dense
+import keras.backend as K
+from keras.callbacks import EarlyStopping
+K.clear_session()
+​
+model = Sequential()
+model.add(Dense(12, input_dim=1, activation='relu'))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.summary()
+early_stop = EarlyStopping(monitor='loss', patience=1, verbose=1)
+model.fit(X_train, y_train, epochs=200,
+          batch_size=2, verbose=1,
+          callbacks=[early_stop])
+y_pred = model.predict(X_test)
+plt.plot(y_test)
+plt.plot(y_pred)
+
+
+
+Recurrent predictor
+
+from keras.layers import LSTM
+X_train.shape
+#3D tensor with shape (batch_size, timesteps, input_dim)
+X_train[:, None].shape
+X_train_t = X_train[:, None]
+X_test_t = X_test[:, None]
+K.clear_session()
+model = Sequential()
+​
+model.add(LSTM(6, input_shape=(1, 1)))
+​
+model.add(Dense(1))
+​
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.fit(X_train_t, y_train,
+          epochs=100, batch_size=1, verbose=1,
+          callbacks=[early_stop])
+y_pred = model.predict(X_test_t)
+plt.plot(y_test)
+plt.plot(y_pred)
+
+
+
+Windows
+train_sc.shape
+train_sc_df = pd.DataFrame(train_sc, columns=['Scaled'], index=train.index)
+test_sc_df = pd.DataFrame(test_sc, columns=['Scaled'], index=test.index)
+train_sc_df.head()
+for s in range(1, 13):
+    train_sc_df['shift_{}'.format(s)] = train_sc_df['Scaled'].shift(s)
+    test_sc_df['shift_{}'.format(s)] = test_sc_df['Scaled'].shift(s)
+train_sc_df.head(13)
+X_train = train_sc_df.dropna().drop('Scaled', axis=1)
+y_train = train_sc_df.dropna()[['Scaled']]
+​
+X_test = test_sc_df.dropna().drop('Scaled', axis=1)
+y_test = test_sc_df.dropna()[['Scaled']]
+X_train.head()
+X_train.shape
+X_train = X_train.values
+X_test= X_test.values
+​
+y_train = y_train.values
+y_test = y_test.values
+
+
+
+Fully Connected on Windows
+K.clear_session()
+​
+model = Sequential()
+model.add(Dense(12, input_dim=12, activation='relu'))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.summary()
+model.fit(X_train, y_train, epochs=200,
+          batch_size=1, verbose=1, callbacks=[early_stop])
+y_pred = model.predict(X_test)
+plt.plot(y_test)
+plt.plot(y_pred)
+
+
+
+LSTM on Windows
+X_train_t = X_train.reshape(X_train.shape[0], 1, 12)
+X_test_t = X_test.reshape(X_test.shape[0], 1, 12)
+X_train_t.shape
+K.clear_session()
+model = Sequential()
+​
+model.add(LSTM(6, input_shape=(1, 12)))
+​
+model.add(Dense(1))
+​
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.summary()
+model.fit(X_train_t, y_train, epochs=100,
+          batch_size=1, verbose=1, callbacks=[early_stop])
+y_pred = model.predict(X_test_t)
+plt.plot(y_test)
+plt.plot(y_pred)
+
+
+
+
+Exercise 1
+In the model above we reshaped the input shape to: (num_samples, 1, 12), i.e. we treated a window of 12 months as a vector of 12 coordinates that we simultaneously passed to all the LSTM nodes. An alternative way to look at the problem is to reshape the input to (num_samples, 12, 1). This means we consider each input window as a sequence of 12 values that we will pass in sequence to the LSTM. In principle this looks like a more accurate description of our situation. But does it yield better predictions? Let's check it.
+
+Reshape X_train and X_test so that they represent a set of univariate sequences
+retrain the same LSTM(6) model, you'll have to adapt the input_shape
+check the performance of this new model, is it better at predicting the test data?
+​
+Exercise 2
+RNN models can be applied to images too. In general we can apply them to any data where there's a connnection between nearby units. Let's see how we can easily build a model that works with images.
+
+Load the MNIST data, by now you should be able to do it blindfolded :)
+reshape it so that an image looks like a long sequence of pixels
+create a recurrent model and train it on the training data
+how does it perform compared to a fully connected? How does it compare to Convolutional Neural Networks?
+(feel free to run this exercise on a cloud GPU if it's too slow on your laptop)
+
+​
