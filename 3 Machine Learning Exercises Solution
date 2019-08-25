@@ -1,0 +1,207 @@
+ 
+
+Machine Learning Exercises Solution
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+
+Exercise 1
+
+You've just been hired at a real estate investment firm and they would like you to build a model for pricing houses. You are given a dataset that contains data for house prices and a few features like number of bedrooms, size in square feet and age of the house. Let's see if you can build a model that is able to predict the price. In this exercise we extend what we have learned about linear regression to a dataset with more than one feature. Here are the steps to complete it:
+
+Load the dataset ../data/housing-data.csv
+plot the histograms for each feature
+create 2 variables called X and y: X shall be a matrix with 3 columns (sqft,bdrms,age) and y shall be a vector with 1 column (price)
+create a linear regression model in Keras with the appropriate number of inputs and output
+split the data into train and test with a 20% test size
+train the model on the training set and check its accuracy on training and test set
+how's your model doing? Is the loss growing smaller?
+try to improve your model with these experiments:
+normalize the input features with one of the rescaling techniques mentioned above
+use a different value for the learning rate of your model
+use a different optimizer
+once you're satisfied with training, check the R2score on the test set
+
+
+# Load the dataset ../data/housing-data.csv
+df = pd.read_csv('../data/housing-data.csv')
+df.head()
+df.columns
+# plot the histograms for each feature
+plt.figure(figsize=(15, 5))
+for i, feature in enumerate(df.columns):
+    plt.subplot(1, 4, i+1)
+    df[feature].plot(kind='hist', title=feature)
+    plt.xlabel(feature)
+# create 2 variables called X and y:
+# X shall be a matrix with 3 columns (sqft,bdrms,age)
+# and y shall be a vector with 1 column (price)
+X = df[['sqft', 'bdrms', 'age']].values
+y = df['price'].values
+X
+y
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
+
+# create a linear regression model in Keras
+# with the appropriate number of inputs and output
+model = Sequential()
+model.add(Dense(1, input_shape=(3,)))
+model.compile(Adam(lr=0.8), 'mean_squared_error')
+from sklearn.model_selection import train_test_split
+# split the data into train and test with a 20% test size
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+len(X_train)
+len(X)
+# train the model on the training set and check its accuracy on training and test set
+# how's your model doing? Is the loss growing smaller?
+model.fit(X_train, y_train)
+df.describe()
+from sklearn.metrics import r2_score
+# check the R2score on training and test set (probably very bad)
+​
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+​
+print("The R2 score on the Train set is:\t{:0.3f}".format(r2_score(y_train, y_train_pred)))
+print("The R2 score on the Test set is:\t{:0.3f}".format(r2_score(y_test, y_test_pred)))
+# try to improve your model with these experiments:
+#     - normalize the input features with one of the rescaling techniques mentioned above
+#     - use a different value for the learning rate of your model
+#     - use a different optimizer
+df['sqft1000'] = df['sqft']/1000.0
+df['age10'] = df['age']/10.0
+df['price100k'] = df['price']/1e5
+X = df[['sqft1000', 'bdrms', 'age10']].values
+y = df['price100k'].values
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = Sequential()
+model.add(Dense(1, input_dim=3))
+model.compile(Adam(lr=0.1), 'mean_squared_error')
+model.fit(X_train, y_train, epochs=20)
+
+# once you're satisfied with training, check the R2score on the test set
+​
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+​
+print("The R2 score on the Train set is:\t{:0.3f}".format(r2_score(y_train, y_train_pred)))
+print("The R2 score on the Test set is:\t{:0.3f}".format(r2_score(y_test, y_test_pred)))
+model.fit(X_train, y_train, epochs=40, verbose=0)
+# once you're satisfied with training, check the R2score on the test set
+​
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+​
+print("The R2 score on the Train set is:\t{:0.3f}".format(r2_score(y_train, y_train_pred)))
+print("The R2 score on the Test set is:\t{:0.3f}".format(r2_score(y_test, y_test_pred)))
+
+
+
+
+
+Exercise 2
+
+Your boss was extremely happy with your work on the housing price prediction model and decided to entrust you with a more challenging task. They've seen a lot of people leave the company recently and they would like to understand why that's happening. They have collected historical data on employees and they would like you to build a model that is able to predict which employee will leave next. The would like a model that is better than random guessing. They also prefer false negatives than false positives, in this first phase. Fields in the dataset include:
+
+Employee satisfaction level
+Last evaluation
+Number of projects
+Average monthly hours
+Time spent at the company
+Whether they have had a work accident
+Whether they have had a promotion in the last 5 years
+Department
+Salary
+Whether the employee has left
+Your goal is to predict the binary outcome variable left using the rest of the data. Since the outcome is binary, this is a classification problem. Here are some things you may want to try out:
+
+load the dataset at ../data/HR_comma_sep.csv, inspect it with .head(), .info() and .describe().
+Establish a benchmark: what would be your accuracy score if you predicted everyone stay?
+Check if any feature needs rescaling. You may plot a histogram of the feature to decide which rescaling method is more appropriate.
+convert the categorical features into binary dummy columns. You will then have to combine them with the numerical features using pd.concat.
+do the usual train/test split with a 20% test size
+play around with learning rate and optimizer
+check the confusion matrix, precision and recall
+check if you still get the same results if you use a 5-Fold cross validation on all the data
+Is the model good enough for your boss?
+As you will see in this exercise, the a logistic regression model is not good enough to help your boss. In the next chapter we will learn how to go beyond linear models.
+
+This dataset comes from https://www.kaggle.com/ludobenistant/hr-analytics/ and is released under CC BY-SA 4.0 License.
+
+# load the dataset at ../data/HR_comma_sep.csv, inspect it with `.head()`, `.info()` and `.describe()`.
+​
+df = pd.read_csv('../data/HR_comma_sep.csv')
+df.head()
+df.info()
+df.describe()
+# Establish a benchmark: what would be your accuracy score if you predicted everyone stay?
+​
+df.left.value_counts() / len(df)
+
+Predicting 0 all the time would yield an accuracy of 76%
+
+# Check if any feature needs rescaling.
+# You may plot a histogram of the feature to decide which rescaling method is more appropriate.
+df['average_montly_hours'].plot(kind='hist')
+df['average_montly_hours_100'] = df['average_montly_hours']/100.0
+df['average_montly_hours_100'].plot(kind='hist')
+df['time_spend_company'].plot(kind='hist')
+# convert the categorical features into binary dummy columns.
+# You will then have to combine them with
+# the numerical features using `pd.concat`.
+df_dummies = pd.get_dummies(df[['sales', 'salary']])
+df_dummies.head()
+​
+df.columns
+X = pd.concat([df[['satisfaction_level', 'last_evaluation', 'number_project',
+                   'time_spend_company', 'Work_accident',
+                   'promotion_last_5years', 'average_montly_hours_100']],
+               df_dummies], axis=1).values
+y = df['left'].values
+X.shape
+# do the usual train/test split with a 20% test size
+​
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+# play around with learning rate and optimizer
+​
+model = Sequential()
+model.add(Dense(1, input_dim=20, activation='sigmoid'))
+model.compile(Adam(lr=0.5), 'binary_crossentropy', metrics=['accuracy'])
+model.summary()
+model.fit(X_train, y_train)
+y_test_pred = model.predict_classes(X_test)
+from sklearn.metrics import confusion_matrix, classification_report
+def pretty_confusion_matrix(y_true, y_pred, labels=["False", "True"]):
+    cm = confusion_matrix(y_true, y_pred)
+    pred_labels = ['Predicted '+ l for l in labels]
+    df = pd.DataFrame(cm, index=labels, columns=pred_labels)
+    return df
+# check the confusion matrix, precision and recall
+​
+pretty_confusion_matrix(y_test, y_test_pred, labels=['Stay', 'Leave'])
+print(classification_report(y_test, y_test_pred))
+from keras.wrappers.scikit_learn import KerasClassifier
+# check if you still get the same results if you use a 5-Fold cross validation on all the data
+​
+def build_logistic_regression_model():
+    model = Sequential()
+    model.add(Dense(1, input_dim=20, activation='sigmoid'))
+    model.compile(Adam(lr=0.5), 'binary_crossentropy', metrics=['accuracy'])
+    return model
+​
+model = KerasClassifier(build_fn=build_logistic_regression_model,
+                        epochs=10, verbose=0)
+from sklearn.model_selection import KFold, cross_val_score
+cv = KFold(5, shuffle=True)
+scores = cross_val_score(model, X, y, cv=cv)
+​
+print("The cross validation accuracy is {:0.4f} ± {:0.4f}".format(scores.mean(), scores.std()))
+scores
+# Is the model good enough for your boss?
+No, the model is not good enough for my boss, since it performs no better than the benchmark.
+
