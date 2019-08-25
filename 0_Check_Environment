@@ -1,0 +1,155 @@
+Jupyter Notebook
+0_Check_Environment
+Last Checkpoint: Last Monday at 09:30
+(autosaved)
+Current Kernel Logo
+Python 3 
+File
+Edit
+View
+Insert
+Cell
+Kernel
+Widgets
+Help
+
+Check Environment
+This notebook checks that you have correctly created the environment and that all packages needed are installed.
+
+Environment
+The next command should return a line like (Mac/Linux):
+
+/<YOUR-HOME-FOLDER>/anaconda/envs/ztdl/bin/python
+or like (Windows 10):
+
+C:\\<YOUR-HOME-FOLDER>\\Anaconda3\\envs\\ztdl\\python.exe
+In particular you should make sure that you are using the python executable from within the course environment.
+
+If that's not the case do this:
+
+close this notebook
+
+go to the terminal and stop jupyer notebook
+
+make sure that you have activated the environment, you should see a prompt like:
+
+ (ztdl) $
+(optional) if you don't see that prompt activate the environment:
+
+mac/linux:
+
+  conda activate ztdl
+windows:
+
+  activate ztdl
+restart jupyter notebook
+
+import os
+import sys
+sys.executable
+Python 3.7
+The next line should say that you're using Python 3.7.x from Anaconda. At the time of publication it looks like this (Mac/Linux):
+
+Python 3.7.3 (default, Mar 27 2019, 22:11:17)
+[GCC 7.3.0] :: Anaconda, Inc. on linux
+Type "help", "copyright", "credits" or "license" for more information.
+or like this (Windows 10):
+
+Python 3.7.3 (default, Apr 24 2019, 15:29:51) [MSC v.1915 64 bit (AMD64)] :: Anaconda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+but date and exact version of GCC may change in the future.
+
+If you see a different version of python, go back to the previous step and make sure you created and activated the environment correctly.
+
+import sys
+sys.version
+Jupyter
+Check that Jupyter is running from within the environment. The next line should look like (Mac/Linux):
+
+/<YOUR-HOME-FOLDER>/anaconda/envs/ztdl/lib/python3.6/site-packages/jupyter.py'
+or like this (Windows 10):
+
+C:\\Users\\<YOUR-USER>\\Anaconda3\\envs\\ztdl\\lib\\site-packages\\jupyter.py
+import jupyter
+jupyter.__file__
+Other packages
+Here we will check that all the packages are installed and have the correct versions. If everything is ok you should see:
+
+Using TensorFlow backend.
+
+Houston we are go!
+If there's any issue here please make sure you have checked the previous steps and if it's all good please send us a question in the Q&A forum.
+
+import pip
+import numpy
+import jupyter
+import matplotlib
+import sklearn
+import scipy
+import pandas
+import PIL
+import seaborn
+import h5py
+import tensorflow
+import keras
+​
+​
+def check_version(pkg, version):
+    actual = pkg.__version__.split('.')
+    if len(actual) == 3:
+        actual_major = '.'.join(actual[:2])
+    elif len(actual) == 2:
+        actual_major = '.'.join(actual)
+    else:
+        raise NotImplementedError(pkg.__name__ +
+                                  "actual version :"+
+                                  pkg.__version__)
+    try:
+        assert(actual_major == version)
+    except Exception as ex:
+        print("{} {}\t=> {}".format(pkg.__name__,
+                                    version,
+                                    pkg.__version__))
+        raise ex
+​
+check_version(pip, '19.1')
+check_version(numpy, '1.16')
+check_version(matplotlib, '3.1')
+check_version(sklearn, '0.21')
+check_version(scipy, '1.2')
+check_version(pandas, '0.24')
+check_version(PIL, '6.1')
+check_version(seaborn, '0.9')
+check_version(h5py, '2.9')
+check_version(tensorflow, '1.13')
+check_version(keras, '2.2')
+​
+print("Houston we are go!")
+Using TensorFlow backend.
+scipy 1.2	=> 1.3.0
+---------------------------------------------------------------------------
+AssertionError                            Traceback (most recent call last)
+<ipython-input-1-0420b5799b36> in <module>
+     35 check_version(matplotlib, '3.1')
+     36 check_version(sklearn, '0.21')
+---> 37 check_version(scipy, '1.2')
+     38 check_version(pandas, '0.24')
+     39 check_version(PIL, '6.1')
+
+<ipython-input-1-0420b5799b36> in check_version(pkg, version)
+     29                                     version,
+     30                                     pkg.__version__))
+---> 31         raise ex
+     32 
+     33 check_version(pip, '19.1')
+
+<ipython-input-1-0420b5799b36> in check_version(pkg, version)
+     24                                   pkg.__version__)
+     25     try:
+---> 26         assert(actual_major == version)
+     27     except Exception as ex:
+     28         print("{} {}\t=> {}".format(pkg.__name__,
+
+AssertionError: 
+
+​
