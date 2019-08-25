@@ -1,5 +1,4 @@
-Last login: Sun Aug 25 17:10:01 on ttys000 
--bash: import: command not found
+Last login: Sun Aug 25 17:10:01 on ttys000  
 TUGCEs-MacBook-Air:~ tugce$ pip install tensorflow
 Collecting tensorflow
   Using cached https://files.pythonhosted.org/packages/83/c1/8de7231d39a63eb75d88bf214f8fc7dd8138286fc385597591b0b3b95d24/tensorflow-1.14.0-cp27-cp27m-macosx_10_11_x86_64.whl
