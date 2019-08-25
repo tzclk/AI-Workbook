@@ -1,0 +1,130 @@
+ 
+
+Recurrent Neural Networks
+
+import pandas as pd
+import numpy as np
+%matplotlib inline
+import matplotlib.pyplot as plt
+Time series forecasting
+
+
+from pandas.tseries.offsets import MonthEnd
+​
+df = pd.read_csv('../data/cansim-0800020-eng-6674700030567901031.csv',
+                 skiprows=6, skipfooter=9,
+                 engine='python')
+​
+df['Adjustments'] = pd.to_datetime(df['Adjustments']) + MonthEnd(1)
+df = df.set_index('Adjustments')
+df.head()
+split_date = pd.Timestamp('01-01-2011')
+train = df.loc[:split_date, ['Unadjusted']]
+test = df.loc[split_date:, ['Unadjusted']]
+from sklearn.preprocessing import MinMaxScaler
+​
+sc = MinMaxScaler()
+​
+train_sc = sc.fit_transform(train)
+test_sc = sc.transform(test)
+train_sc_df = pd.DataFrame(train_sc, columns=['Scaled'], index=train.index)
+test_sc_df = pd.DataFrame(test_sc, columns=['Scaled'], index=test.index)
+​
+for s in range(1, 13):
+    train_sc_df['shift_{}'.format(s)] = train_sc_df['Scaled'].shift(s)
+    test_sc_df['shift_{}'.format(s)] = test_sc_df['Scaled'].shift(s)
+​
+X_train = train_sc_df.dropna().drop('Scaled', axis=1)
+y_train = train_sc_df.dropna()[['Scaled']]
+​
+X_test = test_sc_df.dropna().drop('Scaled', axis=1)
+y_test = test_sc_df.dropna()[['Scaled']]
+​
+X_train = X_train.values
+X_test= X_test.values
+​
+y_train = y_train.values
+y_test = y_test.values
+X_train.shape
+
+
+
+
+Exercise 1
+
+In the model above we reshaped the input shape to: (num_samples, 1, 12), i.e. we treated a window of 12 months as a vector of 12 coordinates that we simultaneously passed to all the LSTM nodes. An alternative way to look at the problem is to reshape the input to (num_samples, 12, 1). This means we consider each input window as a sequence of 12 values that we will pass in sequence to the LSTM. In principle this looks like a more accurate description of our situation. But does it yield better predictions? Let's check it.
+
+Reshape X_train and X_test so that they represent a set of univariate sequences
+retrain the same LSTM(6) model, you'll have to adapt the input_shape
+check the performance of this new model, is it better at predicting the test data?
+X_train_t = X_train.reshape(X_train.shape[0], 12, 1)
+X_test_t = X_test.reshape(X_test.shape[0], 12, 1)
+X_train_t.shape
+from keras.models import Sequential
+from keras.layers import LSTM, Dense
+import keras.backend as K
+from keras.callbacks import EarlyStopping
+K.clear_session()
+model = Sequential()
+​
+model.add(LSTM(6, input_shape=(12, 1)))
+​
+model.add(Dense(1))
+​
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.summary()
+early_stop = EarlyStopping(monitor='loss', patience=1, verbose=1)
+model.fit(X_train_t, y_train, epochs=600,
+          batch_size=32, verbose=0)
+y_pred = model.predict(X_test_t)
+plt.plot(y_test)
+plt.plot(y_pred)
+
+
+
+
+
+Exercise 2
+
+RNN models can be applied to images too. In general we can apply them to any data where there's a connnection between nearby units. Let's see how we can easily build a model that works with images.
+
+Load the MNIST data, by now you should be able to do it blindfolded :)
+reshape it so that an image looks like a long sequence of pixels
+create a recurrent model and train it on the training data
+how does it perform compared to a fully connected? How does it compare to Convolutional Neural Networks?
+(feel free to run this exercise on a cloud GPU if it's too slow on your laptop)
+
+from keras.datasets import mnist
+from keras.utils import to_categorical
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
+X_train = X_train.astype('float32') / 255.0
+X_test = X_test.astype('float32') / 255.0
+y_train_cat = to_categorical(y_train, 10)
+y_test_cat = to_categorical(y_test, 10)
+X_train = X_train.reshape(X_train.shape[0], -1, 1)
+X_test = X_test.reshape(X_test.shape[0], -1, 1)
+print(X_train.shape)
+print(X_test.shape)
+print(y_train_cat.shape)
+print(y_test_cat.shape)
+# define the model
+K.clear_session()
+model = Sequential()
+model.add(LSTM(32, input_shape=X_train.shape[1:]))
+model.add(Dense(10, activation='softmax'))
+​
+# compile the model
+model.compile(loss='categorical_crossentropy',
+              optimizer='rmsprop',
+              metrics=['accuracy'])
+​
+model.fit(X_train, y_train_cat,
+          batch_size=32,
+          epochs=100,
+          validation_split=0.3,
+          shuffle=True,
+          verbose=2,
+          )
+​
+model.evaluate(X_test, y_test_cat)
+​
