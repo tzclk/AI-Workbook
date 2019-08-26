@@ -1,0 +1,168 @@
+ 
+Data Input and Output
+This notebook is the reference code for getting input and output, pandas can read a variety of 
+file types using its pd.read_ methods. Let's take a look at the most common data types:
+
+import numpy as np
+import pandas as pd
+
+CSV
+CSV Input
+
+df = pd.read_csv('example')
+df
+
+
+a	b	c	d
+0	0	1	2	3
+1	4	5	6	7
+2	8	9	10	11
+3	12	13	14	15
+
+CSV Output
+
+df.to_csv('example',index=False)
+
+Excel
+Pandas can read and write excel files, keep in mind, this only imports data. Not formulas or images, having images or macros may cause this read_excel method to crash.
+
+Excel Input
+
+pd.read_excel('Excel_Sample.xlsx',sheetname='Sheet1')
+
+a	b	c	d
+0	0	1	2	3
+1	4	5	6	7
+2	8	9	10	11
+3	12	13	14	15
+
+Excel Output
+
+df.to_excel('Excel_Sample.xlsx',sheet_name='Sheet1')
+
+
+
+HTML
+You may need to install htmllib5,lxml, and BeautifulSoup4. In your terminal/command prompt run:
+
+conda install lxml
+conda install html5lib
+conda install BeautifulSoup4
+
+Then restart Jupyter Notebook. (or use pip install if you aren't using the Anaconda Distribution)
+
+Pandas can read table tabs off of html. For example:
+
+
+HTML Input
+Pandas read_html function will read tables off of a webpage and return a list of DataFrame objects:
+
+
+df = pd.read_html('http://www.fdic.gov/bank/individual/failed/banklist.html')
+
+df[0]
+Bank Name	City	ST	CERT	Acquiring Institution	Closing Date	Updated Date	Loss Share Type	Agreement Terminated	Termination Date
+0	First CornerStone Bank	King of Prussia	PA	35312	First-Citizens Bank & Trust Company	May 6, 2016	July 12, 2016	none	NaN	NaN
+1	Trust Company Bank	Memphis	TN	9956	The Bank of Fayette County	April 29, 2016	August 4, 2016	none	NaN	NaN
+2	North Milwaukee State Bank	Milwaukee	WI	20364	First-Citizens Bank & Trust Company	March 11, 2016	June 16, 2016	none	NaN	NaN
+3	Hometown National Bank	Longview	WA	35156	Twin City Bank	October 2, 2015	April 13, 2016	none	NaN	NaN
+4	The Bank of Georgia	Peachtree City	GA	35259	Fidelity Bank	October 2, 2015	April 13, 2016	none	NaN	NaN
+5	Premier Bank	Denver	CO	34112	United Fidelity Bank, fsb	July 10, 2015	July 12, 2016	none	NaN	NaN
+6	Edgebrook Bank	Chicago	IL	57772	Republic Bank of Chicago	May 8, 2015	July 12, 2016	none	NaN	NaN
+7	Doral BankEn Espanol	San Juan	PR	32102	Banco Popular de Puerto Rico	February 27, 2015	May 13, 2015	none	NaN	NaN
+8	Capitol City Bank & Trust Company	Atlanta	GA	33938	First-Citizens Bank & Trust Company	February 13, 2015	April 21, 2015	none	NaN	NaN
+9	Highland Community Bank	Chicago	IL	20290	United Fidelity Bank, fsb	January 23, 2015	April 21, 2015	none	NaN	NaN
+10	First National Bank of Crestview	Crestview	FL	17557	First NBC Bank	January 16, 2015	January 15, 2016	none	NaN	NaN
+11	Northern Star Bank	Mankato	MN	34983	BankVista	December 19, 2014	January 6, 2016	none	NaN	NaN
+12	Frontier Bank, FSB D/B/A El Paseo Bank	Palm Desert	CA	34738	Bank of Southern California, N.A.	November 7, 2014	January 6, 2016	none	NaN	NaN
+13	The National Republic Bank of Chicago	Chicago	IL	916	State Bank of Texas	October 24, 2014	January 6, 2016	none	NaN	NaN
+14	NBRS Financial	Rising Sun	MD	4862	Howard Bank	October 17, 2014	March 26, 2015	none	NaN	NaN
+15	GreenChoice Bank, fsb	Chicago	IL	28462	Providence Bank, LLC	July 25, 2014	July 28, 2015	none	NaN	NaN
+16	Eastside Commercial Bank	Conyers	GA	58125	Community & Southern Bank	July 18, 2014	July 11, 2016	none	NaN	NaN
+17	The Freedom State Bank	Freedom	OK	12483	Alva State Bank & Trust Company	June 27, 2014	March 25, 2016	none	NaN	NaN
+18	Valley Bank	Fort Lauderdale	FL	21793	Landmark Bank, National Association	June 20, 2014	June 29, 2015	none	NaN	NaN
+19	Valley Bank	Moline	IL	10450	Great Southern Bank	June 20, 2014	June 26, 2015	none	NaN	NaN
+20	Slavie Federal Savings Bank	Bel Air	MD	32368	Bay Bank, FSB	May 30, 2014	June 15, 2015	none	NaN	NaN
+21	Columbia Savings Bank	Cincinnati	OH	32284	United Fidelity Bank, fsb	May 23, 2014	May 28, 2015	none	NaN	NaN
+22	AztecAmerica Bank En Espanol	Berwyn	IL	57866	Republic Bank of Chicago	May 16, 2014	July 18, 2014	none	NaN	NaN
+23	Allendale County Bank	Fairfax	SC	15062	Palmetto State Bank	April 25, 2014	July 18, 2014	none	NaN	NaN
+24	Vantage Point Bank	Horsham	PA	58531	First Choice Bank	February 28, 2014	March 3, 2015	none	NaN	NaN
+25	Millennium Bank, National Association	Sterling	VA	35096	WashingtonFirst Bank	February 28, 2014	March 03, 2015	none	NaN	NaN
+26	Syringa Bank	Boise	ID	34296	Sunwest Bank	January 31, 2014	April 12, 2016	none	NaN	NaN
+27	The Bank of Union	El Reno	OK	17967	BancFirst	January 24, 2014	March 25, 2016	none	NaN	NaN
+28	DuPage National Bank	West Chicago	IL	5732	Republic Bank of Chicago	January 17, 2014	February 19, 2015	none	NaN	NaN
+29	Texas Community Bank, National Association	The Woodlands	TX	57431	Spirit of Texas Bank, SSB	December 13, 2013	December 29, 2014	none	NaN	NaN
+...	...	...	...	...	...	...	...	...	...	...
+515	ANB Financial, NA	Bentonville	AR	33901	Pulaski Bank and Trust Company	May 9, 2008	August 28, 2012	none	NaN	NaN
+516	Hume Bank	Hume	MO	1971	Security Bank	March 7, 2008	August 28, 2012	none	NaN	NaN
+517	Douglass National Bank	Kansas City	MO	24660	Liberty Bank and Trust Company	January 25, 2008	October 26, 2012	none	NaN	NaN
+518	Miami Valley Bank	Lakeview	OH	16848	The Citizens Banking Company	October 4, 2007	August 28, 2012	none	NaN	NaN
+519	NetBank	Alpharetta	GA	32575	ING DIRECT	September 28, 2007	August 28, 2012	none	NaN	NaN
+520	Metropolitan Savings Bank	Pittsburgh	PA	35353	Allegheny Valley Bank of Pittsburgh	February 2, 2007	October 27, 2010	none	NaN	NaN
+521	Bank of Ephraim	Ephraim	UT	1249	Far West Bank	June 25, 2004	April 9, 2008	none	NaN	NaN
+522	Reliance Bank	White Plains	NY	26778	Union State Bank	March 19, 2004	April 9, 2008	none	NaN	NaN
+523	Guaranty National Bank of Tallahassee	Tallahassee	FL	26838	Hancock Bank of Florida	March 12, 2004	June 5, 2012	none	NaN	NaN
+524	Dollar Savings Bank	Newark	NJ	31330	No Acquirer	February 14, 2004	April 9, 2008	none	NaN	NaN
+525	Pulaski Savings Bank	Philadelphia	PA	27203	Earthstar Bank	November 14, 2003	July 22, 2005	none	NaN	NaN
+526	First National Bank of Blanchardville	Blanchardville	WI	11639	The Park Bank	May 9, 2003	June 5, 2012	none	NaN	NaN
+527	Southern Pacific Bank	Torrance	CA	27094	Beal Bank	February 7, 2003	October 20, 2008	none	NaN	NaN
+528	Farmers Bank of Cheneyville	Cheneyville	LA	16445	Sabine State Bank & Trust	December 17, 2002	October 20, 2004	none	NaN	NaN
+529	Bank of Alamo	Alamo	TN	9961	No Acquirer	November 8, 2002	March 18, 2005	none	NaN	NaN
+530	AmTrade International BankEn Espanol	Atlanta	GA	33784	No Acquirer	September 30, 2002	September 11, 2006	none	NaN	NaN
+531	Universal Federal Savings Bank	Chicago	IL	29355	Chicago Community Bank	June 27, 2002	April 9, 2008	none	NaN	NaN
+532	Connecticut Bank of Commerce	Stamford	CT	19183	Hudson United Bank	June 26, 2002	February 14, 2012	none	NaN	NaN
+533	New Century Bank	Shelby Township	MI	34979	No Acquirer	March 28, 2002	March 18, 2005	none	NaN	NaN
+534	Net 1st National Bank	Boca Raton	FL	26652	Bank Leumi USA	March 1, 2002	April 9, 2008	none	NaN	NaN
+535	NextBank, NA	Phoenix	AZ	22314	No Acquirer	February 7, 2002	February 5, 2015	none	NaN	NaN
+536	Oakwood Deposit Bank Co.	Oakwood	OH	8966	The State Bank & Trust Company	February 1, 2002	October 25, 2012	none	NaN	NaN
+537	Bank of Sierra Blanca	Sierra Blanca	TX	22002	The Security State Bank of Pecos	January 18, 2002	November 6, 2003	none	NaN	NaN
+538	Hamilton Bank, NAEn Espanol	Miami	FL	24382	Israel Discount Bank of New York	January 11, 2002	September 21, 2015	none	NaN	NaN
+539	Sinclair National Bank	Gravette	AR	34248	Delta Trust & Bank	September 7, 2001	February 10, 2004	none	NaN	NaN
+540	Superior Bank, FSB	Hinsdale	IL	32646	Superior Federal, FSB	July 27, 2001	August 19, 2014	none	NaN	NaN
+541	Malta National Bank	Malta	OH	6629	North Valley Bank	May 3, 2001	November 18, 2002	none	NaN	NaN
+542	First Alliance Bank & Trust Co.	Manchester	NH	34264	Southern New Hampshire Bank & Trust	February 2, 2001	February 18, 2003	none	NaN	NaN
+543	National State Bank of Metropolis	Metropolis	IL	3815	Banterra Bank of Marion	December 14, 2000	March 17, 2005	none	NaN	NaN
+544	Bank of Honolulu	Honolulu	HI	21029	Bank of the Orient	October 13, 2000	March 17, 2005	none	NaN	NaN
+545 rows × 10 columns
+
+SQL (Optional)
+Note: If you are completely unfamiliar with SQL you can check out my other course: "Complete SQL Bootcamp" to learn SQL.
+The pandas.io.sql module provides a collection of query wrappers to both facilitate data retrieval and to reduce dependency 
+on DB-specific API. Database abstraction is provided by SQLAlchemy if installed. In addition you will need a driver library 
+for your database. Examples of such drivers are psycopg2 for PostgreSQL or pymysql for MySQL. For SQLite this is included in 
+Python’s standard library by default. You can find an overview of supported drivers for each SQL dialect in the SQLAlchemy docs.
+
+If SQLAlchemy is not installed, a fallback is only provided for sqlite (and for mysql for backwards compatibility, 
+but this is deprecated and will be removed in a future version). This mode requires a Python database adapter which 
+respect the Python DB-API.
+
+See also some cookbook examples for some advanced strategies.
+
+The key functions are:
+
+read_sql_table(table_name, con[, schema, ...])
+Read SQL database table into a DataFrame.
+read_sql_query(sql, con[, index_col, ...])
+Read SQL query into a DataFrame.
+read_sql(sql, con[, index_col, ...])
+
+
+Read SQL query or database table into a DataFrame.
+
+DataFrame.to_sql(name, con[, flavor, ...])
+
+Write records stored in a DataFrame to a SQL database.
+
+
+from sqlalchemy import create_engine
+engine = create_engine('sqlite:///:memory:')
+df.to_sql('data', engine)
+sql_df = pd.read_sql('data',con=engine)
+sql_df
+
+index	a	b	c	d
+0	0	0	1	2	3
+1	1	4	5	6	7
+2	2	8	9	10	11
+3	3	12	13	14	15
+Great Job!
