@@ -1,0 +1,164 @@
+ 
+ 
+
+Operations
+There are lots of operations with pandas that will be really useful to you, but don't fall into any distinct category. Let's show them here in this lecture:
+
+import pandas as pd
+df = pd.DataFrame({'col1':[1,2,3,4],'col2':[444,555,666,444],'col3':['abc','def','ghi','xyz']})
+df.head()
+
+col1	col2	col3
+0	1	444	abc
+1	2	555	def
+2	3	666	ghi
+3	4	444	xyz
+
+Info on Unique Values
+
+df['col2'].unique()
+
+array([444, 555, 666])
+
+df['col2'].nunique()
+
+3
+
+df['col2'].value_counts()
+
+444    2
+555    1
+666    1
+Name: col2, dtype: int64
+
+Selecting Data
+#Select from DataFrame using criteria from multiple columns
+newdf = df[(df['col1']>2) & (df['col2']==444)]
+newdf
+
+col1	col2	col3
+3	4	444	xyz
+
+
+Applying Functions
+
+def times2(x):
+    return x*2
+
+df['col1'].apply(times2)
+0    2
+1    4
+2    6
+3    8
+
+
+Name: col1, dtype: int64
+
+df['col3'].apply(len)
+0    3
+1    3
+2    3
+3    3
+
+
+Name: col3, dtype: int64
+
+df['col1'].sum()
+10
+** Permanently Removing a Column**
+
+
+del df['col1']
+df
+col2	col3
+0	444	abc
+1	555	def
+2	666	ghi
+3	444	xyz
+** Get column and index names: **
+
+df.columns
+Index(['col2', 'col3'], dtype='object')
+df.index
+
+RangeIndex(start=0, stop=4, step=1)
+** Sorting and Ordering a DataFrame:**
+
+df
+
+col2	col3
+0	444	abc
+1	555	def
+2	666	ghi
+3	444	xyz
+
+df.sort_values(by='col2') #inplace=False by default
+col2	col3
+0	444	abc
+3	444	xyz
+1	555	def
+2	666	ghi
+** Find Null Values or Check for Null Values**
+
+df.isnull()
+col2	col3
+0	False	False
+1	False	False
+2	False	False
+3	False	False
+
+# Drop rows with NaN Values
+
+df.dropna()
+
+col2	col3
+0	444	abc
+1	555	def
+2	666	ghi
+3	444	xyz
+** Filling in NaN values with something else: **
+
+import numpy as np
+df = pd.DataFrame({'col1':[1,2,3,np.nan],
+                   'col2':[np.nan,555,666,444],
+                   'col3':['abc','def','ghi','xyz']})
+
+df.head()
+col1	col2	col3
+0	1.0	NaN	abc
+1	2.0	555.0	def
+2	3.0	666.0	ghi
+3	NaN	444.0	xyz
+
+df.fillna('FILL')
+
+col1	col2	col3
+0	1	FILL	abc
+1	2	555	def
+2	3	666	ghi
+3	FILL	444	xyz
+
+data = {'A':['foo','foo','foo','bar','bar','bar'],
+     'B':['one','one','two','two','one','one'],
+       'C':['x','y','x','y','x','y'],
+       'D':[1,3,2,5,4,1]}
+​
+df = pd.DataFrame(data)
+df
+
+A	B	C	D
+0	foo	one	x	1
+1	foo	one	y	3
+2	foo	two	x	2
+3	bar	two	y	5
+4	bar	one	x	4
+5	bar	one	y	1
+
+df.pivot_table(values='D',index=['A', 'B'],columns=['C'])
+C	x	y
+A	B		
+bar	one	4.0	1.0
+two	NaN	5.0
+foo	one	1.0	3.0
+two	2.0	NaN
+Great Job!
