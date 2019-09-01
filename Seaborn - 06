@@ -1,0 +1,73 @@
+Seaborn has many built-in capabilities for regression plots, however we won't really discuss regression 
+until the machine learning section of the course, so we will only cover the lmplot() function for now.
+
+lmplot allows you to display linear models, but it also conveniently allows you to split up 
+those plots based off of features, as well as coloring the hue based off of features.
+
+Let's explore how this works:
+
+
+
+import seaborn as sns
+%matplotlib inline
+
+
+#Regression Plots
+
+
+import seaborn as sns
+%matplotlib inline
+
+tips = sns.load_dataset('tips')
+
+tips.head()
+
+
+
+#lmplot()
+
+sns.lmplot(x='total_bill',y='tip',data=tips)
+
+sns.lmplot(x='total_bill',y='tip',data=tips,hue='sex')
+
+sns.lmplot(x='total_bill',y='tip',data=tips,hue='sex',palette='coolwarm')
+
+
+
+
+#Working with Markers
+
+# http://matplotlib.org/api/markers_api.html
+
+sns.lmplot(x='total_bill',y='tip',data=tips,hue='sex',palette='coolwarm',
+           markers=['o','v'],scatter_kws={'s':100})
+           
+           
+#Using a Grid
+
+sns.lmplot(x='total_bill',y='tip',data=tips,col='sex')
+
+sns.lmplot(x="total_bill", y="tip", row="sex", col="time",data=tips)
+
+sns.lmplot(x='total_bill',y='tip',data=tips,col='day',hue='sex',palette='coolwarm')
+
+
+
+
+#Aspect and Size
+
+sns.lmplot(x='total_bill',y='tip',data=tips,col='day',hue='sex',palette='coolwarm',
+          aspect=0.6,size=8)
+          
+          
+
+
+
+
+
+
+
+
+           
+           
+           
