@@ -1,0 +1,52 @@
+#Plotly and Cufflinks
+
+pip install plotly
+pip install cufflinks
+
+import pandas as pd
+import numpy as np
+%matplotlib inline
+
+
+from plotly import __version__
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+
+print(__version__) # requires version >= 1.9.0
+
+
+
+import cufflinks as cf
+
+# For Notebooks
+init_notebook_mode(connected=True)
+
+# For offline use
+cf.go_offline()
+
+
+
+#Fake Data
+
+df = pd.DataFrame(np.random.randn(100,4),columns='A B C D'.split())
+
+df.head()
+
+df2 = pd.DataFrame({'Category':['A','B','C'],'Values':[32,43,50]})
+
+df2.head()
+
+
+
+#Using Cufflinks and iplot()
+scatter
+bar
+box
+spread
+ratio
+heatmap
+surface
+histogram
+bubble
+
+df.iplot(kind='scatter',x='A',y='B',mode='markers',size=10)
+
