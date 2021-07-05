@@ -1,0 +1,368 @@
+ ​Gradient Descent
+import numpy as np
+import pandas as pd
+%matplotlib inline
+import matplotlib.pyplot as plt
+
+
+​Linear Algebra with Numpy
+a = np.array([1, 3, 2, 4])
+a
+type(a)
+A = np.array([[3, 1, 2],
+              [2, 3, 4]])
+​
+B = np.array([[0, 1],
+              [2, 3],
+              [4, 5]])
+​
+C = np.array([[0, 1],
+              [2, 3],
+              [4, 5],
+              [0, 1],
+              [2, 3],
+              [4, 5]])
+​
+print("A is a {} matrix".format(A.shape))
+print("B is a {} matrix".format(B.shape))
+print("C is a {} matrix".format(C.shape))
+
+A[0]
+C[2, 0]
+B[:, 0]
+
+
+​Elementwise operations
+3 * A
+A + A
+A * A
+A / A
+A - A
+
+​Uncomment the code in the next cells. You will see that tensors of different shape cannot be added or multiplied:
+
+# A + B
+# A * B
+
+
+​Dot product
+
+A.shape
+B.shape
+A.dot(B)
+np.dot(A, B)
+B.dot(A)
+C.shape
+A.shape
+C.dot(A)
+
+​Uncomment the code in the next cell to visualize the error:
+
+# A.dot(C)
+​Gradient descent
+
+
+df = pd.read_csv('../data/banknotes.csv')
+df.head()
+df['class'].value_counts()
+import seaborn as sns
+sns.pairplot(df, hue="class")
+
+
+​Baseline model
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import scale
+X = scale(df.drop('class', axis=1).values)
+y = df['class'].values
+model = RandomForestClassifier()
+cross_val_score(model, X, y)
+
+
+​Logistic Regression Model
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                    test_size=0.3,
+                                                    random_state=42)
+import keras.backend as K
+from keras.models import Sequential
+from keras.layers import Dense, Activation
+from keras.optimizers import SGD
+K.clear_session()
+​
+model = Sequential()
+model.add(Dense(1, input_shape=(4,), activation='sigmoid'))
+​
+model.compile(loss='binary_crossentropy',
+              optimizer='sgd',
+              metrics=['accuracy'])
+​
+history = model.fit(X_train, y_train)
+result = model.evaluate(X_test, y_test)
+historydf = pd.DataFrame(history.history, index=history.epoch)
+historydf.plot(ylim=(0,1))
+plt.title("Test accuracy: {:3.1f} %".format(result[1]*100), fontsize=15)
+
+
+​Learning Rates
+dflist = []
+​
+learning_rates = [0.01, 0.05, 0.1, 0.5]
+​
+for lr in learning_rates:
+​
+    K.clear_session()
+​
+    model = Sequential()
+    model.add(Dense(1, input_shape=(4,), activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',
+                  optimizer=SGD(lr=lr),
+                  metrics=['accuracy'])
+    h = model.fit(X_train, y_train, batch_size=16, verbose=0)
+    
+    dflist.append(pd.DataFrame(h.history, index=h.epoch))
+historydf = pd.concat(dflist, axis=1)
+historydf
+metrics_reported = dflist[0].columns
+idx = pd.MultiIndex.from_product([learning_rates, metrics_reported],
+                                 names=['learning_rate', 'metric'])
+​
+historydf.columns = idx
+historydf
+ax = plt.subplot(211)
+historydf.xs('loss', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Loss")
+​
+ax = plt.subplot(212)
+historydf.xs('acc', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Accuracy")
+plt.xlabel("Epochs")
+​
+plt.tight_layout()
+Batch Sizes
+dflist = []
+​
+batch_sizes = [16, 32, 64, 128]
+​
+for batch_size in batch_sizes:
+    K.clear_session()
+​
+    model = Sequential()
+    model.add(Dense(1, input_shape=(4,), activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',
+                  optimizer='sgd',
+                  metrics=['accuracy'])
+    h = model.fit(X_train, y_train, batch_size=batch_size, verbose=0)
+    
+    dflist.append(pd.DataFrame(h.history, index=h.epoch))
+    
+historydf = pd.concat(dflist, axis=1)
+metrics_reported = dflist[0].columns
+idx = pd.MultiIndex.from_product([batch_sizes, metrics_reported],
+                                 names=['batch_size', 'metric'])
+historydf.columns = idx
+historydf
+ax = plt.subplot(211)
+historydf.xs('loss', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Loss")
+​
+ax = plt.subplot(212)
+historydf.xs('acc', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Accuracy")
+plt.xlabel("Epochs")
+​
+plt.tight_layout()
+
+
+
+
+​Optimizers
+from keras.optimizers import SGD, Adam, Adagrad, RMSprop
+dflist = []
+​
+optimizers = ['SGD(lr=0.01)',
+              'SGD(lr=0.01, momentum=0.3)',
+              'SGD(lr=0.01, momentum=0.3, nesterov=True)',  
+              'Adam(lr=0.01)',
+              'Adagrad(lr=0.01)',
+              'RMSprop(lr=0.01)']
+​
+for opt_name in optimizers:
+​
+    K.clear_session()
+    
+    model = Sequential()
+    model.add(Dense(1, input_shape=(4,), activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',
+                  optimizer=eval(opt_name),
+                  metrics=['accuracy'])
+    h = model.fit(X_train, y_train, batch_size=16, epochs=5, verbose=0)
+    
+    dflist.append(pd.DataFrame(h.history, index=h.epoch))
+historydf = pd.concat(dflist, axis=1)
+metrics_reported = dflist[0].columns
+idx = pd.MultiIndex.from_product([optimizers, metrics_reported],
+                                 names=['optimizers', 'metric'])
+historydf.columns = idx
+ax = plt.subplot(211)
+historydf.xs('loss', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Loss")
+​
+ax = plt.subplot(212)
+historydf.xs('acc', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Accuracy")
+plt.xlabel("Epochs")
+​
+plt.tight_layout()
+
+
+
+​Initialization
+https://keras.io/initializers/
+
+dflist = []
+​
+initializers = ['zeros', 'uniform', 'normal',
+                'he_normal', 'lecun_uniform']
+​
+for init in initializers:
+​
+    K.clear_session()
+​
+    model = Sequential()
+    model.add(Dense(1, input_shape=(4,),
+                    kernel_initializer=init,
+                    activation='sigmoid'))
+​
+    model.compile(loss='binary_crossentropy',
+                  optimizer='rmsprop',
+                  metrics=['accuracy'])
+​
+    h = model.fit(X_train, y_train, batch_size=16, epochs=5, verbose=0)
+    
+    dflist.append(pd.DataFrame(h.history, index=h.epoch))
+historydf = pd.concat(dflist, axis=1)
+metrics_reported = dflist[0].columns
+idx = pd.MultiIndex.from_product([initializers, metrics_reported],
+                                 names=['initializers', 'metric'])
+​
+historydf.columns = idx
+ax = plt.subplot(211)
+historydf.xs('loss', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Loss")
+​
+ax = plt.subplot(212)
+historydf.xs('acc', axis=1, level='metric').plot(ylim=(0,1), ax=ax)
+plt.title("Accuracy")
+plt.xlabel("Epochs")
+​
+plt.tight_layout()
+Inner layer representation
+K.clear_session()
+​
+model = Sequential()
+model.add(Dense(2, input_shape=(4,), activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(loss='binary_crossentropy',
+              optimizer=RMSprop(lr=0.01),
+              metrics=['accuracy'])
+​
+h = model.fit(X_train, y_train, batch_size=16, epochs=20,
+              verbose=1, validation_split=0.3)
+result = model.evaluate(X_test, y_test)
+result
+model.summary()
+model.layers
+inp = model.layers[0].input
+out = model.layers[0].output
+inp
+out
+features_function = K.function([inp], [out])
+features_function
+features_function([X_test])[0].shape
+features = features_function([X_test])[0]
+plt.scatter(features[:, 0], features[:, 1], c=y_test, cmap='coolwarm')
+K.clear_session()
+​
+model = Sequential()
+model.add(Dense(3, input_shape=(4,), activation='relu'))
+model.add(Dense(2, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(loss='binary_crossentropy',
+              optimizer=RMSprop(lr=0.01),
+              metrics=['accuracy'])
+inp = model.layers[0].input
+out = model.layers[1].output
+features_function = K.function([inp], [out])
+​
+plt.figure(figsize=(15,10))
+​
+for i in range(1, 26):
+    plt.subplot(5, 5, i)
+    h = model.fit(X_train, y_train, batch_size=16, epochs=1, verbose=0)
+    test_accuracy = model.evaluate(X_test, y_test)[1]
+    features = features_function([X_test])[0]
+    plt.scatter(features[:, 0], features[:, 1], c=y_test, cmap='coolwarm')
+    plt.xlim(-0.5, 3.5)
+    plt.ylim(-0.5, 4.0)
+    plt.title('Epoch: {}, Test Acc: {:3.1f} %'.format(i, test_accuracy * 100.0))
+​
+plt.tight_layout()
+
+
+
+
+
+Exercise 1
+You've just been hired at a wine company and they would like you to help them build a model that predicts the quality of their wine based on several measurements. They give you a dataset with wine
+
+Load the ../data/wines.csv into Pandas
+Use the column called "Class" as target
+Check how many classes are there in target, and if necessary use dummy columns for a multi-class classification
+Use all the other columns as features, check their range and distribution (using seaborn pairplot)
+Rescale all the features using either MinMaxScaler or StandardScaler
+Build a deep model with at least 1 hidden layer to classify the data
+Choose the cost function, what will you use? Mean Squared Error? Binary Cross-Entropy? Categorical Cross-Entropy?
+Choose an optimizer
+Choose a value for the learning rate, you may want to try with several values
+Choose a batch size
+Train your model on all the data using a validation_split=0.2. Can you converge to 100% validation accuracy?
+What's the minumum number of epochs to converge?
+Repeat the training several times to verify how stable your results are
+​
+Exercise 2
+Since this dataset has 13 features we can only visualize pairs of features like we did in the Paired plot. We could however exploit the fact that a neural network is a function to extract 2 high level features to represent our data.
+
+Build a deep fully connected network with the following structure:
+Layer 1: 8 nodes
+Layer 2: 5 nodes
+Layer 3: 2 nodes
+Output : 3 nodes
+Choose activation functions, inizializations, optimizer and learning rate so that it converges to 100% accuracy within 20 epochs (not easy)
+Remember to train the model on the scaled data
+Define a Feature Funtion like we did above between the input of the 1st layer and the output of the 3rd layer
+Calculate the features and plot them on a 2-dimensional scatter plot
+Can we distinguish the 3 classes well?
+​
+Exercise 3
+Keras functional API. So far we've always used the Sequential model API in Keras. However, Keras also offers a Functional API, which is much more powerful. You can find its documentation here. Let's see how we can leverage it.
+
+define an input layer called inputs
+define two hidden layers as before, one with 8 nodes, one with 5 nodes
+define a second_to_last layer with 2 nodes
+define an output layer with 3 nodes
+create a model that connect input and output
+train it and make sure that it converges
+define a function between inputs and second_to_last layer
+recalculate the features and plot them
+​
+Exercise 4
+Keras offers the possibility to call a function at each epoch. These are Callbacks, and their documentation is here. Callbacks allow us to add some neat functionality. In this exercise we'll explore a few of them.
+
+Split the data into train and test sets with a test_size = 0.3 and random_state=42
+Reset and recompile your model
+train the model on the train data using validation_data=(X_test, y_test)
+Use the EarlyStopping callback to stop your training if the val_loss doesn't improve
+Use the ModelCheckpoint callback to save the trained model to disk once training is finished
+Use the TensorBoard callback to output your training information to a /tmp/ subdirectory
+Watch the next video for an overview of tensorboard
+​

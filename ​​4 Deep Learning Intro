@@ -1,0 +1,166 @@
+ 
+Deep Learning Intro
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+​Shallow and Deep Networks
+from sklearn.datasets import make_moons
+
+​
+X, y = make_moons(n_samples=1000, noise=0.1, random_state=0)
+plt.plot(X[y==0, 0], X[y==0, 1], 'ob', alpha=0.5)
+plt.plot(X[y==1, 0], X[y==1, 1], 'xr', alpha=0.5)
+plt.legend(['0', '1'])
+X.shape
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                    test_size=0.3,
+                                                    random_state=42)
+                                                    
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import SGD, Adam
+
+​​Shallow Model
+model = Sequential()
+model.add(Dense(1, input_shape=(2,), activation='sigmoid'))
+model.compile(Adam(lr=0.05), 'binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=200, verbose=0)
+
+results = model.evaluate(X_test, y_test)
+results
+print("The Accuracy score on the Train set is:\t{:0.3f}".format(results[1]))
+def plot_decision_boundary(model, X, y):
+    amin, bmin = X.min(axis=0) - 0.1
+    amax, bmax = X.max(axis=0) + 0.1
+    hticks = np.linspace(amin, amax, 101)
+    vticks = np.linspace(bmin, bmax, 101)
+    
+    aa, bb = np.meshgrid(hticks, vticks)
+    ab = np.c_[aa.ravel(), bb.ravel()]
+    
+    c = model.predict(ab)
+    cc = c.reshape(aa.shape)
+​
+    plt.figure(figsize=(12, 8))
+    plt.contourf(aa, bb, cc, cmap='bwr', alpha=0.2)
+    plt.plot(X[y==0, 0], X[y==0, 1], 'ob', alpha=0.5)
+    plt.plot(X[y==1, 0], X[y==1, 1], 'xr', alpha=0.5)
+    plt.legend(['0', '1'])
+    
+plot_decision_boundary(model, X, y)
+
+
+​Deep model
+model = Sequential()
+model.add(Dense(4, input_shape=(2,), activation='tanh'))
+model.add(Dense(2, activation='tanh'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(Adam(lr=0.05), 'binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=100, verbose=0)
+model.evaluate(X_test, y_test)
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+y_train_pred = model.predict_classes(X_train)
+y_test_pred = model.predict_classes(X_test)
+
+​
+print("The Accuracy score on the Train set is:\t{:0.3f}".format(accuracy_score(y_train, y_train_pred)))
+print("The Accuracy score on the Test set is:\t{:0.3f}".format(accuracy_score(y_test, y_test_pred)))
+plot_decision_boundary(model, X, y)
+
+
+
+​Multiclass classification
+​​The Iris dataset
+df = pd.read_csv('../data/iris.csv')
+import seaborn as sns
+sns.pairplot(df, hue="species")
+df.head()
+X = df.drop('species', axis=1)
+X.head()
+
+target_names = df['species'].unique()
+target_names
+target_dict = {n:i for i, n in enumerate(target_names)}
+target_dict
+
+y= df['species'].map(target_dict)
+y.head()
+
+from keras.utils.np_utils import to_categorical
+y_cat = to_categorical(y)
+y_cat[:10]
+X_train, X_test, y_train, y_test = train_test_split(X.values, y_cat,
+                                                    test_size=0.2)
+model = Sequential()
+model.add(Dense(3, input_shape=(4,), activation='softmax'))
+model.compile(Adam(lr=0.1),
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=20, validation_split=0.1)
+y_pred = model.predict(X_test)
+y_pred[:5]
+y_test_class = np.argmax(y_test, axis=1)
+y_pred_class = np.argmax(y_pred, axis=1)
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test_class, y_pred_class))
+confusion_matrix(y_test_class, y_pred_class)
+
+
+
+
+​Exercise 1
+The Pima Indians dataset is a very famous dataset distributed by UCI and originally collected from the National Institute of Diabetes and Digestive and Kidney Diseases. It contains data from clinical exams for women age 21 and above of Pima indian origins. The objective is to predict based on diagnostic measurements whether a patient has diabetes.
+
+It has the following features:
+
+Pregnancies: Number of times pregnant
+Glucose: Plasma glucose concentration a 2 hours in an oral glucose tolerance test
+BloodPressure: Diastolic blood pressure (mm Hg)
+SkinThickness: Triceps skin fold thickness (mm)
+Insulin: 2-Hour serum insulin (mu U/ml)
+BMI: Body mass index (weight in kg/(height in m)^2)
+DiabetesPedigreeFunction: Diabetes pedigree function
+Age: Age (years)
+The last colum is the outcome, and it is a binary variable.
+
+In this first exercise we will explore it through the following steps:
+
+Load the ..data/diabetes.csv dataset, use pandas to explore the range of each feature
+For each feature draw a histogram. Bonus points if you draw all the histograms in the same figure.
+Explore correlations of features with the outcome column. You can do this in several ways, for example using the sns.pairplot we used above or drawing a heatmap of the correlations.
+Do features need standardization? If so what stardardization technique will you use? MinMax? Standard?
+Prepare your final X and y variables to be used by a ML model. Make sure you define your target variable well. Will you need dummy columns?
+​
+Exercise 2
+Build a fully connected NN model that predicts diabetes. Follow these steps:
+
+Split your data in a train/test with a test size of 20% and a random_state = 22
+define a sequential model with at least one inner layer. You will have to make choices for the following things:
+what is the size of the input?
+how many nodes will you use in each layer?
+what is the size of the output?
+what activation functions will you use in the inner layers?
+what activation function will you use at output?
+what loss function will you use?
+what optimizer will you use?
+fit your model on the training set, using a validation_split of 0.1
+test your trained model on the test data from the train/test split
+check the accuracy score, the confusion matrix and the classification report
+​
+Exercise 3
+Compare your work with the results presented in this notebook. Are your Neural Network results better or worse than the results obtained by traditional Machine Learning techniques?
+
+Try training a Support Vector Machine or a Random Forest model on the exact same train/test split. Is the performance better or worse?
+Try restricting your features to only 4 features like in the suggested notebook. How does model performance change?
+​
+Exercise 4
+Tensorflow playground is a web based neural network demo. It is really useful to develop an intuition about what happens when you change architecture, activation function or other parameters. Try playing with it for a few minutes. You don't need do understand the meaning of every knob and button in the page, just get a sense for what happens if you change something. In the next chapter we'll explore these things in more detail.
+
+​
